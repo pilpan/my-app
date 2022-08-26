@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import { injectStyle } from 'react-toastify/dist/inject-style';
+import ButtonGroup from './ButtonGroup';
+import InputNew from './InputNew';
+import InputOld from './InputOld';
 
 if (typeof window !== 'undefined') {
   injectStyle();
@@ -58,53 +61,14 @@ export default function Numpad() {
       <div className="row">
         <div className="col-md-8 mx-auto">
           <div className="btn-group-vertical mt-4">
-            <form onSubmit={addHandler} className="container" style={{ width: '500px', height: '550px' }}>
+            <form onSubmit={addHandler} className="container" style={{ width: '30rem'}}>
               {!arrState && arr.map((el, index) => (
-                <input
-                  onFocus={(e) => { setInputState(e.target); }}
-                  style={{
-                    width: '50px',
-                    height: '50px',
-                  }}
-                  className="text-center"
-                  name={`${index}`}
-                  key={`${index}`}
-                  id={`${index}S`}
-                />
+                <InputOld key={index} index={index} setInputState={setInputState} />
               )) }
               {arrState && arrState.map((el, index) => (
-                <input
-                  key={`${index}`}
-                  id={`${index}S`}
-                  style={{
-                    width: '50px',
-                    height: '50px',
-                  }}
-                  className="text-center"
-                  value={el}
-                  readOnly
-                />
+                <InputNew key={index} el={el} index={index} />
               ))}
-              <div style={{ width: '1rem', height: '28rem' }}>
-                <div className="btn-group" style={{ width: '28rem' }}>
-                  <button type="button" onClick={clickHandler} className="btn btn-outline-secondary py-3">1</button>
-                  <button type="button" onClick={clickHandler} className="btn btn-outline-secondary py-3">2</button>
-                  <button type="button" onClick={clickHandler} className="btn btn-outline-secondary py-3">3</button>
-                </div>
-                <div className="btn-group" style={{ width: '28rem' }}>
-                  <button type="button" onClick={clickHandler} className="btn btn-outline-secondary py-3">4</button>
-                  <button type="button" onClick={clickHandler} className="btn btn-outline-secondary py-3">5</button>
-                  <button type="button" onClick={clickHandler} className="btn btn-outline-secondary py-3">6</button>
-                </div>
-                <div className="btn-group" style={{ width: '28rem' }}>
-                  <button type="button" onClick={clickHandler} className="btn btn-outline-secondary py-3">7</button>
-                  <button type="button" onClick={clickHandler} className="btn btn-outline-secondary py-3">8</button>
-                  <button type="button" onClick={clickHandler} className="btn btn-outline-secondary py-3">9</button>
-                </div>
-                <div>
-                  <button type="submit" className="btn btn-outline-secondary py-3" style={{ 'margin-left': '11rem' }}>Решить</button>
-                </div>
-              </div>
+              <ButtonGroup clickHandler={clickHandler} />
             </form>
           </div>
         </div>
