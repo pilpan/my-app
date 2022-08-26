@@ -1,6 +1,12 @@
 import React from 'react';
+import InputEmpty from './InputEmpty';
 
-export default function InputOld({ el, setInputState, index }) {
+export default function InputOld({
+  el, setInputState, index,
+}) {
+  if (el === 0) {
+    return (<InputEmpty key={index} index={index} setInputState={setInputState} />);
+  }
   if (
     ((index % 9 === 0 || index % 9 === 1 || index % 9 === 2) && index < 21)
     || ((index % 9 === 6 || index % 9 === 7 || index % 9 === 8) && index < 27)
@@ -10,7 +16,6 @@ export default function InputOld({ el, setInputState, index }) {
   ) {
     return (
       <input
-        onFocus={(e) => { setInputState(e.target); }}
         style={{
           width: '50px',
           height: '50px',
@@ -19,21 +24,22 @@ export default function InputOld({ el, setInputState, index }) {
         name={`${index}`}
         id={`${index}S`}
         value={el}
+        onFocus={(e) => { setInputState(e.target); }}
       />
     );
   }
-  console.log('123');
+
   return (
     <input
-      onFocus={(e) => { setInputState(e.target); }}
       style={{
         width: '50px',
         height: '50px',
       }}
       className="text-center text-info bg-light"
       name={`${index}`}
-      value={el}
       id={`${index}S`}
+      value={el}
+      onFocus={(e) => { setInputState(e.target); }}
     />
   );
 }
