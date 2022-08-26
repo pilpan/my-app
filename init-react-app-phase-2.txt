@@ -1,0 +1,151 @@
+#!/bin/bash
+npm init -y
+npx create-gitignore node
+npx eslint --init 
+touch .babelrc .sequelizerc webpack.config.js README.md .env envExample
+mkdir src public src/components src/routes src/routes/api src/routes/render src/middlewars
+touch src/server.js
+npm i -D @babel/node @babel/plugin-proposal-class-properties @babel/preset-env @babel/preset-react babel-loader
+npm i @babel/cli axios bcrypt cors dotenv express express-session morgan pg pg-hstore react react-dom react-router-dom sequelize sequelize-cli session-file-store webpack webpack-cli
+echo '{
+  "presets": [
+    ["@babel/preset-env", { "targets": { "node": "current" } }],
+    "@babel/preset-react"
+  ],
+  "plugins": ["@babel/plugin-proposal-class-properties"]
+} ' >> .babelrc
+echo "DB_USER=
+DB_PASSWORD=
+DB_NAME=
+DB_HOST=
+PORT=3000" >> envExample
+echo "/distr
+public/app.js
+public/vendor.js" >> .gitignore
+
+echo 'const path = require("path");
+module.exports = {
+  "config": path.resolve("src", "db", "config", "database.json"),
+  "models-path": path.resolve("src", "db", "models"),
+  "seeders-path": path.resolve("src", "db", "seeder"),
+  "migrations-path": path.resolve("src", "db", "migrations")
+}' >> .sequelizerc
+
+npx sequelize-cli init
+
+echo 'const path = require("path");
+const config = {
+  entry: {
+    app: ["./src/components/index.jsx"],
+  },
+  output: {
+    path: path.resolve(__dirname, "public"),
+    globalObject: "this",
+    filename: "[name].js",
+  },
+  module: {
+    rules: [
+      {
+        test: /\.(js|jsx)$/,
+        use: {
+          loader: "babel-loader",
+          options: {
+            presets: ["@babel/preset-env", "@babel/preset-react"],
+          },
+        },
+        exclude: /node_modules/,
+      },
+    ],
+  },
+  resolve: {
+    extensions: [".js", ".jsx", ".json", ".wasm", ".mjs", "*"],
+  },
+  mode: "development",
+  optimization: {
+    splitChunks: {
+      cacheGroups: {
+        default: false,
+        vendors: false,
+        vendor: {
+          chunks: "all", // both : consider sync + async chunks for evaluation
+          name: "vendor", // имя чанк-файла
+          test: /node_modules/, // test regular expression
+        },
+      },
+    },
+  },
+};
+module.exports = config;' >> webpack.config.js
+
+touch src/components/App.jsx  src/components/Layout.jsx src/components/index.jsx
+
+cd src/components
+
+echo 'import React from "react"
+export default function App() {
+  return (
+    <div>App</div>
+  );
+}' >> App.jsx
+
+echo 'import React from "react";
+import App from "./App";
+export default function Layout({ initState }) {
+  return (
+    <html lang="en">
+      <head>
+        <meta charSet="UTF-8" />
+        <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <script
+          type="text/javascript"
+          dangerouslySetInnerHTML={{
+            __html: `window.initState=${JSON.stringify(initState)}`,
+          }}
+        />
+        <script defer src="/app.js" />
+        <script defer src="/vendor.js" />
+        <title>Document</title>
+      </head>
+      <body>
+        <div id="root">
+          <App {...initState} />
+        </div>
+      </body>
+    </html>
+  );
+}' >> Layout.jsx
+
+echo 'import React from "react";
+import ReactDOMClient from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+import App from "./App";
+ReactDOMClient.hydrateRoot(
+  document.getElementById("root"),
+    <App {...window.initState} />
+);'  >> index.jsx
+cd ..
+echo 'import express from "express";
+import morgan from "morgan";
+import React from "react";
+import { renderToString } from "react-dom/server";
+import Layout from "./components/Layout";
+const PORT = 3000;
+const app = express();
+app.use(express.static("public"));
+app.use(morgan("dev"));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.get("/", async (req, res) => {
+    const initState = { path: req.originalUrl };
+    const layoutComponent = React.createElement(Layout, { initState });
+    const html = renderToString(layoutComponent);
+    res.write("<!DOCTYPE html>");
+    res.end(html);
+});
+app.listen(PORT, () => console.log(`App has started on port ${PORT}`));' >> server.js
+
+cd ../..
+
+
+
